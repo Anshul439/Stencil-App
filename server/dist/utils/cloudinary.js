@@ -27,7 +27,7 @@ const uploadOnCloudinary = (localFilePath) => __awaiter(void 0, void 0, void 0, 
         const response = yield cloudinary_1.v2.uploader.upload(localFilePath, {
             resource_type: "auto",
         });
-        console.log(response);
+        // console.log(response);
         console.log("file has been uploaded on cloudinary", response.url);
         return response;
     }

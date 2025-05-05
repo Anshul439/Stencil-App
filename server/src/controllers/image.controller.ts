@@ -10,7 +10,7 @@ export const imageUpload = async (
 ) => {
   try {
     if (!req.files || !req.files.image || req.files.image.length === 0) {
-      return next(errorHandler(400, res, "Profile picture upload is required"));
+      return next(errorHandler(400, res, "Image upload is required"));
     }
 
     // Upload the image to Cloudinary
@@ -21,11 +21,18 @@ export const imageUpload = async (
       return next(errorHandler(500, res, "Error uploading image"));
     }
 
-    if (!req.user?.id) {
-      return next(errorHandler(401, res, "Unauthorized"));
-    }
+    // if (!req.user?.id) {
+    //   return next(errorHandler(401, res, "Unauthorized"));
+    // }
 
-    const userId = req.user.id;
+    // const userId = req.user.id;
+    const clerkId = req.auth.userId;
+
+    const user = await User.findOne({ clerkId });
+
+    if (!user) {
+      return next(errorHandler(404, res, "User not found"));
+    }
 
     if (!imageResponse.secure_url) {
       return next(
@@ -33,20 +40,13 @@ export const imageUpload = async (
       );
     }
 
-    const user = await User.findByIdAndUpdate(
-      userId,
-      { image: imageResponse.secure_url },
-      { new: true }
-    );
-
-    if (!user) {
-      return next(errorHandler(404, res, "User not found"));
-    }
+    user.image.push(imageResponse.secure_url);
+    await user.save();
 
     res.status(200).json({
       code: 200,
       data: { image: user.image },
-      message: "Profile picture uploaded and updated successfully",
+      message: "Image uploaded and updated successfully",
     });
   } catch (error) {
     console.log(error);

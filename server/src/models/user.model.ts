@@ -4,6 +4,7 @@ interface IUser extends Document {
   clerkId: string;
   email?: string;
   name?: string;
+  image?: string[];
   createdAt: Date;
 }
 
@@ -15,6 +16,9 @@ const userSchema: Schema<IUser> = new mongoose.Schema({
   },
   email: String,
   name: String,
+  image: {
+    type: [String],
+  },
   createdAt: {
     type: Date,
     default: Date.now,

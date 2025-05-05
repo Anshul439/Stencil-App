@@ -14,26 +14,24 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.syncClerkUser = void 0;
 const user_model_js_1 = __importDefault(require("../models/user.model.js"));
-const syncClerkUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const error_js_1 = require("../utils/error.js");
+const syncClerkUser = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { clerkId, email } = req.body;
-        // Check if user already exists
         let user = yield user_model_js_1.default.findOne({ clerkId });
         if (user) {
-            return res.status(400).json({ message: "User already exists" });
+            next((0, error_js_1.errorHandler)(400, res, "User already exists"));
         }
-        // Create new user
         user = new user_model_js_1.default({
             clerkId,
             email,
-            // Add any other fields you want to store
         });
         yield user.save();
         res.status(201).json({ user });
     }
     catch (error) {
         console.error("Error creating user:", error);
-        res.status(500).json({ message: "Server error" });
+        next((0, error_js_1.errorHandler)(500, res, "Server error"));
     }
 });
 exports.syncClerkUser = syncClerkUser;

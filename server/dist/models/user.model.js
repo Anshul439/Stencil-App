@@ -12,6 +12,9 @@ const userSchema = new mongoose_1.default.Schema({
     },
     email: String,
     name: String,
+    image: {
+        type: [String],
+    },
     createdAt: {
         type: Date,
         default: Date.now,

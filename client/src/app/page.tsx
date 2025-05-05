@@ -1,7 +1,13 @@
-import { SignedIn, SignedOut, SignInButton, SignUpButton, UserButton } from "@clerk/nextjs";
+'use client'
+import { SignedIn, SignedOut, SignInButton, SignUpButton, useAuth, UserButton } from "@clerk/nextjs";
 import Link from "next/link";
 
 export default function Home() {
+  const { getToken } = useAuth();
+const token = getToken();
+console.log(token);
+
+
   return (
     <main className="min-h-screen bg-gray-900 text-gray-100">
       {/* Navigation */}

@@ -1,28 +1,30 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import User from "../models/user.model.js";
+import { errorHandler } from "../utils/error.js";
 
-export const syncClerkUser = async (req: Request, res: Response) => {
+export const syncClerkUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
-    const { clerkId, email} = req.body;
+    const { clerkId, email } = req.body;
 
-    // Check if user already exists
     let user = await User.findOne({ clerkId });
 
     if (user) {
-      return res.status(400).json({ message: "User already exists" });
+      next(errorHandler(400, res, "User already exists"));
     }
 
-    // Create new user
     user = new User({
       clerkId,
       email,
-      // Add any other fields you want to store
     });
 
     await user.save();
     res.status(201).json({ user });
   } catch (error) {
     console.error("Error creating user:", error);
-    res.status(500).json({ message: "Server error" });
+    next(errorHandler(500, res, "Server error"));
   }
 };

@@ -17,10 +17,9 @@ const user_model_1 = __importDefault(require("../models/user.model"));
 const cloudinary_1 = require("../utils/cloudinary");
 const error_1 = require("../utils/error");
 const imageUpload = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
     try {
         if (!req.files || !req.files.image || req.files.image.length === 0) {
-            return next((0, error_1.errorHandler)(400, res, "Profile picture upload is required"));
+            return next((0, error_1.errorHandler)(400, res, "Image upload is required"));
         }
         // Upload the image to Cloudinary
         const imageLocalPath = req.files.image[0].path;
@@ -28,21 +27,24 @@ const imageUpload = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
         if (imageResponse.error) {
             return next((0, error_1.errorHandler)(500, res, "Error uploading image"));
         }
-        if (!((_a = req.user) === null || _a === void 0 ? void 0 : _a.id)) {
-            return next((0, error_1.errorHandler)(401, res, "Unauthorized"));
-        }
-        const userId = req.user.id;
-        if (!imageResponse.secure_url) {
-            return next((0, error_1.errorHandler)(500, res, "Failed to get image URL from Cloudinary"));
-        }
-        const user = yield user_model_1.default.findByIdAndUpdate(userId, { image: imageResponse.secure_url }, { new: true });
+        // if (!req.user?.id) {
+        //   return next(errorHandler(401, res, "Unauthorized"));
+        // }
+        // const userId = req.user.id;
+        const clerkId = req.auth.userId;
+        const user = yield user_model_1.default.findOne({ clerkId });
         if (!user) {
             return next((0, error_1.errorHandler)(404, res, "User not found"));
         }
+        if (!imageResponse.secure_url) {
+            return next((0, error_1.errorHandler)(500, res, "Failed to get image URL from Cloudinary"));
+        }
+        user.image.push(imageResponse.secure_url);
+        yield user.save();
         res.status(200).json({
             code: 200,
             data: { image: user.image },
-            message: "Profile picture uploaded and updated successfully",
+            message: "Image uploaded and updated successfully",
         });
     }
     catch (error) {
